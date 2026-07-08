@@ -1,0 +1,56 @@
+services:
+  aemaacs-author:
+    image: eclipse-temurin:11-jdk
+    container_name: aemaacs-author
+    working_dir: /opt/aem
+    restart: unless-stopped
+    volumes:
+      - ./author:/opt/aem
+      - aemaacs_author_data:/opt/aem/crx-quickstart
+    ports:
+      - "14502:4502"                     # 14502 to avoid clashing with your 6.5 (4502)
+      - "15005:5005"                     # debug author
+    environment:
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+    command: >
+      bash -lc "
+      java -Xms2048m -Xmx4096m
+      -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      -jar /opt/aem/aem-sdk-author.jar
+      -nofork
+      -r author,local
+      "
+    networks:
+      - devops-net-jenkins-and-docker
+
+  aemaacs-publish:
+    image: eclipse-temurin:11-jdk
+    container_name: aemaacs-publish
+    working_dir: /opt/aem
+    restart: unless-stopped
+    volumes:
+      - ./publish:/opt/aem
+      - aemaacs_publish_data:/opt/aem/crx-quickstart
+    ports:
+      - "14503:4503"                     # 14503 to avoid clashing with your 6.5 (4503)
+      - "15006:5005"                     # debug publish
+    environment:
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+    command: >
+      bash -lc "
+      java -Xms2048m -Xmx4096m
+      -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      -jar /opt/aem/aem-sdk-publish.jar
+      -nofork
+      -r publish,local
+      "
+    networks:
+      - devops-net-jenkins-and-docker
+
+volumes:
+  aemaacs_author_data:
+  aemaacs_publish_data:
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

@@ -1,0 +1,202 @@
+// ============================================================================
+//  Full CI/CD pipeline · AEM Enterprise Lab
+//  Flow: checkout → build → test → SonarQube → Trivy → Nexus → Docker image
+//        → image scan → Selenium → deploy to AEM
+//
+//  Prerequisites:
+//   - Tools in Jenkins:  JDK-11 · Maven-3.9  (Manage Jenkins → Tools)
+//   - Plugins: Pipeline, Pipeline: Declarative, SonarQube Scanner, JUnit,
+//              Docker Pipeline, Workspace Cleanup
+//   - SonarQube server 'sonarqube-local' (Manage Jenkins → System)
+//   - Trivy server running at trivy:4954
+//   - Credentials in Jenkins:  'nexus-creds' (Nexus username/password)
+//
+//  Stages marked  // TODO  depend on your specific project/environment: enable
+//  them as each service gets integrated.
+// ============================================================================
+
+pipeline {
+    agent any
+
+    tools {
+        jdk   'JDK-11'
+        maven 'Maven-3.9'
+    }
+
+    environment {
+        MAVEN_OPTS   = '-Xmx1024m'
+        // Internal URLs (container name on the shared network):
+        SONAR_ENV    = 'sonarqube-local'                 // server name in Jenkins
+        NEXUS_URL    = 'http://nexus:8081'
+        TRIVY_SERVER = 'http://trivy:4954'
+        SELENIUM_HUB = 'http://selenium-hub:4444/wd/hub'
+        AEM_AUTHOR   = 'http://aem-author:4502'
+        // Name/tag of the image being built:
+        IMAGE_NAME   = "aem-app"
+        IMAGE_TAG    = "${env.BUILD_NUMBER}"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+        timeout(time: 60, unit: 'MINUTES')
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    stages {
+
+        // ── 1 · Checkout ──────────────────────────────────────────────────
+        stage('Checkout') {
+            steps {
+                // If the job is "Pipeline script from SCM", Jenkins already did the
+                // checkout and you can delete this stage. Otherwise, uncomment and
+                // adjust the Gitea repo:
+                // git branch: 'main',
+                //     url: 'http://gitea:3000/your-user/your-aem-project.git',
+                //     credentialsId: 'gitea-creds'
+                echo 'Code fetched from the repository.'
+            }
+        }
+
+        // ── 2 · Verify environment ────────────────────────────────────────
+        stage('Verify environment') {
+            steps {
+                sh 'java -version'   // must report 11.x, not the container's 21
+                sh 'mvn -version'
+            }
+        }
+
+        // ── 3 · Compile ───────────────────────────────────────────────────
+        stage('Build') {
+            steps {
+                sh 'mvn -B -U clean compile'
+            }
+        }
+
+        // ── 4 · Unit tests ────────────────────────────────────────────────
+        stage('Unit tests') {
+            steps {
+                sh 'mvn -B test'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        // ── 5 · SonarQube analysis ────────────────────────────────────────
+        stage('SonarQube analysis') {
+            steps {
+                withSonarQubeEnv("${SONAR_ENV}") {
+                    sh 'mvn -B sonar:sonar'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    // Aborts the pipeline if SonarQube fails the quality gate.
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        // ── 6 · Trivy · dependency/code scan ──────────────────────────────
+        stage('Trivy · dependencies') {
+            steps {
+                // Trivy client scanning the project filesystem against the
+                // permanent server. Fails the build if there is a CRITICAL.
+                sh """
+                    trivy fs \
+                      --server ${TRIVY_SERVER} \
+                      --severity HIGH,CRITICAL \
+                      --exit-code 1 \
+                      --no-progress \
+                      .
+                """
+            }
+        }
+
+        // ── 7 · Package and publish to Nexus ──────────────────────────────
+        stage('Package & Deploy to Nexus') {
+            steps {
+                // 'deploy' packages and uploads to the repo defined in pom.xml
+                // (<distributionManagement>) or in settings.xml pointing to NEXUS_URL.
+                configFileProvider([]) {
+                    sh 'mvn -B -U clean deploy -DskipTests'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: '**/target/*.zip, **/target/*.jar',
+                                     fingerprint: true, allowEmptyArchive: true
+                }
+            }
+        }
+
+        // ── 8 · Build Docker image ────────────────────────────────────────
+        stage('Docker Build') {
+            steps {
+                // TODO: requires a Dockerfile in the repo and Jenkins being able to use
+                // Docker (mounted socket). Push to Nexus as a registry if you enable it.
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            }
+        }
+
+        // ── 9 · Trivy · image scan ────────────────────────────────────────
+        stage('Trivy · image') {
+            steps {
+                sh """
+                    trivy image \
+                      --server ${TRIVY_SERVER} \
+                      --severity HIGH,CRITICAL \
+                      --exit-code 1 \
+                      --no-progress \
+                      ${IMAGE_NAME}:${IMAGE_TAG}
+                """
+            }
+        }
+
+        // ── 10 · Deploy to AEM ────────────────────────────────────────────
+        stage('Deploy to AEM') {
+            steps {
+                // TODO: deploy the content package to the Author. Example with the
+                // content-package-maven-plugin and a dedicated profile:
+                // sh "mvn -B clean install -PautoInstallPackage \
+                //       -Daem.host=aem-author -Daem.port=4502 \
+                //       -Dvault.user=admin -Dvault.password=admin"
+                echo "Deploy to AEM Author at ${AEM_AUTHOR}"
+            }
+        }
+
+        // ── 11 · UI tests with Selenium ───────────────────────────────────
+        stage('Selenium tests') {
+            steps {
+                // TODO: your tests use RemoteWebDriver pointing to SELENIUM_HUB.
+                // sh "mvn -B verify -Pselenium -Dselenium.hub=${SELENIUM_HUB}"
+                echo "Run Selenium tests against ${SELENIUM_HUB}"
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/failsafe-reports/*.xml'
+                }
+            }
+        }
+    }
+
+    // ── Final actions ─────────────────────────────────────────────────────
+    post {
+        success {
+            echo "✅ Pipeline #${env.BUILD_NUMBER} completed successfully."
+        }
+        failure {
+            echo "❌ Pipeline #${env.BUILD_NUMBER} failed. Check the Console Output."
+            // Optional TODO: notify MailHog / Slack.
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

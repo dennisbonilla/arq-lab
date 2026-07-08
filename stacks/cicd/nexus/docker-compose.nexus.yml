@@ -1,0 +1,22 @@
+services:
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus
+    restart: unless-stopped
+    ports:
+      - "8098:8081"     # web UI and repositories (Maven, npm, etc.)
+      - "8099:8082"     # optional: hosted Docker registry (if you enable it later)
+    volumes:
+      - nexus_data:/nexus-data
+    # Nexus recommends at least 2 GB of RAM. Adjust if your machine is tight.
+    environment:
+      INSTALL4J_ADD_VM_PARAMS: "-Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=2g"
+    networks:
+      - devops-net-jenkins-and-docker
+
+volumes:
+  nexus_data:
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

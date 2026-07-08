@@ -1,0 +1,65 @@
+services:
+  aem-author:
+    image: eclipse-temurin:11-jdk        # Java 11, without building a custom image
+    container_name: aem65-author
+    working_dir: /opt/aem
+    restart: unless-stopped
+    volumes:
+      - ./author:/opt/aem                # your author folder (with the jar and license)
+      - aem_author_data:/opt/aem/crx-quickstart
+    ports:
+      - "4502:4502"
+      - "5005:5005"                      # remote debug port (JDWP)
+    environment:
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+    command: >
+      bash -lc "
+      java -Xms2048m -Xmx4096m
+      -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      -jar /opt/aem/aem-author-p4502.jar
+      -nofork
+      "
+    networks:
+      - devops-net-jenkins-and-docker
+
+  aem-publish:
+    image: eclipse-temurin:11-jdk
+    container_name: aem65-publish
+    working_dir: /opt/aem
+    restart: unless-stopped
+    volumes:
+      - ./publish:/opt/aem
+      - aem_publish_data:/opt/aem/crx-quickstart
+    ports:
+      - "4503:4503"
+    environment:
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+    command: >
+      bash -lc "
+      java -Xms2048m -Xmx4096m
+      -jar /opt/aem/aem-publish-p4503.jar
+      -nofork
+      "
+    networks:
+      - devops-net-jenkins-and-docker
+
+  dispatcher:
+    build:
+      context: ./dispatcher
+      dockerfile: Dockerfile
+      
+    image: aem-dispatcher:6.5          # YOUR image, the one you built
+    container_name: dispatcher-aem-6.5
+    restart: unless-stopped
+    ports:
+      - "8096:80"                      # http://localhost:8096 (8080 is used by Jenkins)
+    networks:
+      - devops-net-jenkins-and-docker
+      
+volumes:
+  aem_author_data:
+  aem_publish_data:
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

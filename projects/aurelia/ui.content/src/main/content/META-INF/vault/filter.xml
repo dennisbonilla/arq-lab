@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/aurelia" mode="merge"/>
+    <filter root="/content/aurelia" mode="merge"/>
+    <filter root="/content/dam/aurelia" mode="merge">
+        <exclude pattern="/content/dam/aurelia(/.*)?"/>
+        <include pattern="/content/dam/aurelia/jcr:content(/.*)?"/>
+    </filter>
+    <filter root="/content/dam/aurelia/asset.jpg" mode="merge"/>
+    <filter root="/content/experience-fragments/aurelia" mode="merge"/>
+</workspaceFilter>

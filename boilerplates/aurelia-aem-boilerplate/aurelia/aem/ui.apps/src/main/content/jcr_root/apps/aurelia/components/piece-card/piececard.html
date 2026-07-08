@@ -1,0 +1,31 @@
+<sly data-sly-use.piece="com.aurelia.core.models.PieceModel"
+     data-sly-test.ok="${piece.name}">
+    <button type="button" class="piece-card"
+            aria-label="${piece.name}"
+            data-name="${piece.name}"
+            data-collection="${piece.collection}"
+            data-notes="${piece.notes}"
+            data-metal="${piece.metal}"
+            data-gemstone="${piece.gemstone}"
+            data-carat="${piece.carat}"
+            data-ref="${piece.ref}"
+            data-image="${piece.imageSrc}"
+            data-alt="${piece.imageAlt}"
+            data-label-metal="${'spec.metal' @ i18n}"
+            data-label-gem="${'spec.gemstone' @ i18n}"
+            data-label-carat="${'spec.carat' @ i18n}"
+            data-label-ref="${'spec.ref' @ i18n}">
+        <span class="media">
+            <img src="${piece.imageSrc}" alt="${piece.imageAlt}" loading="lazy"/>
+            <span class="carat-tag">${piece.carat}</span>
+        </span>
+        <span class="caption">
+            <span class="collection">${piece.collection}</span>
+            <span class="name-line">${piece.name}</span>
+            <span class="gem">${piece.gemstone}</span>
+        </span>
+    </button>
+</sly>
+<sly data-sly-test="${!piece.name}">
+    <div class="cmp-placeholder" data-emptytext="Piece Card: selecciona un Content Fragment"></div>
+</sly>

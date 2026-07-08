@@ -1,0 +1,15 @@
+<sly data-sly-use.article="com.aurelia.core.models.ArticleModel"
+     data-sly-test.ok="${article.title}">
+    <article class="article-card">
+        <a href="${article.detailUrl}" class="media" aria-label="${article.title}">
+            <img src="${article.heroSrc}" alt="${article.heroAlt}" loading="lazy"/>
+        </a>
+        <span class="tag">${article.tag}</span>
+        <h3><a href="${article.detailUrl}">${article.title}</a></h3>
+        <p>${article.excerpt}</p>
+        <span class="meta">${'stories.by' @ i18n} ${article.author} &middot; ${article.readMinutes} ${'stories.read' @ i18n}</span>
+    </article>
+</sly>
+<sly data-sly-test="${!article.title}">
+    <div class="cmp-placeholder" data-emptytext="Article Card: selecciona un Content Fragment"></div>
+</sly>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/apps/aurelia/clientlibs"/>
+    <filter root="/apps/aurelia/components"/>
+    <filter root="/apps/aurelia/i18n"/>
+</workspaceFilter>

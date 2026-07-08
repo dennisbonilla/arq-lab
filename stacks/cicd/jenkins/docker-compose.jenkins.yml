@@ -1,0 +1,18 @@
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-local
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - devops-net-jenkins-and-docker
+
+volumes:
+  jenkins_home:
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

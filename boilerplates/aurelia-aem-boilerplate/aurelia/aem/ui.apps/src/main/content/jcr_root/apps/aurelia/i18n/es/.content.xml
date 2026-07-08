@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
+    jcr:primaryType="sling:Folder"
+    jcr:mixinTypes="[mix:language]"
+    jcr:language="es">
+    <nav_home
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="nav.home"
+        sling:message="Inicio"/>
+    <nav_gallery
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="nav.gallery"
+        sling:message="Colección"/>
+    <nav_stories
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="nav.stories"
+        sling:message="Diario"/>
+    <nav_contact
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="nav.contact"
+        sling:message="Contacto"/>
+    <hero_eyebrow
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="hero.eyebrow"
+        sling:message="Casa de joyería · desde 1998"/>
+    <hero_title_a
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="hero.title.a"
+        sling:message="Joyas con"/>
+    <hero_title_em
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="hero.title.em"
+        sling:message="alma"/>
+    <hero_title_b
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="hero.title.b"
+        sling:message="hechas a mano"/>
+    <hero_lede
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="hero.lede"
+        sling:message="Elegimos cada gema, dibujamos cada montura y trabajamos el metal a mano para que la pieza que recibes sea única e irrepetible."/>
+    <hero_cta_primary
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="hero.cta.primary"
+        sling:message="Ver colección"/>
+    <hero_cta_secondary
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="hero.cta.secondary"
+        sling:message="Pedir cita"/>
+    <home_feature1_eyebrow
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature1.eyebrow"
+        sling:message="El taller"/>
+    <home_feature1_title
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature1.title"
+        sling:message="Cada pieza nace de un boceto"/>
+    <home_feature1_body
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature1.body"
+        sling:message="Diseñamos a mano, seleccionamos gemas certificadas y engastamos con técnicas heredadas. Nada sale del taller sin pasar por la lupa del maestro joyero."/>
+    <home_feature1_cta
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature1.cta"
+        sling:message="Nuestro oficio"/>
+    <home_feature2_eyebrow
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature2.eyebrow"
+        sling:message="Origen"/>
+    <home_feature2_title
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature2.title"
+        sling:message="Oro justo y gemas trazables"/>
+    <home_feature2_body
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature2.body"
+        sling:message="Trabajamos con oro de origen responsable y gemas con certificado. Sabemos de dónde viene cada material y con gusto te lo mostramos."/>
+    <home_feature2_cta
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.feature2.cta"
+        sling:message="Leer más"/>
+    <home_promo_title
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.promo.title"
+        sling:message="Piezas a medida y citas privadas"/>
+    <home_promo_body
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.promo.body"
+        sling:message="Diseñamos anillos de compromiso y piezas únicas contigo, en persona."/>
+    <home_promo_cta
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="home.promo.cta"
+        sling:message="Agendar cita"/>
+    <gallery_eyebrow
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="gallery.eyebrow"
+        sling:message="La colección"/>
+    <gallery_title
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="gallery.title"
+        sling:message="Piezas en exhibición"/>
+    <gallery_lede
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="gallery.lede"
+        sling:message="Cada ficha es una pieza real con su hallmark: metal, gema y quilates. Rotan según disponibilidad."/>
+    <stories_eyebrow
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="stories.eyebrow"
+        sling:message="Diario del taller"/>
+    <stories_title
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="stories.title"
+        sling:message="Historias de oficio y gemas"/>
+    <stories_lede
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="stories.lede"
+        sling:message="Notas largas sobre diseño, materiales y las manos detrás de cada joya."/>
+    <stories_read
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="stories.read"
+        sling:message="min de lectura"/>
+    <stories_by
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="stories.by"
+        sling:message="Por"/>
+    <stories_back
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="stories.back"
+        sling:message="Volver al Diario"/>
+    <contact_eyebrow
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.eyebrow"
+        sling:message="Escríbenos"/>
+    <contact_title
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.title"
+        sling:message="Hablemos de tu joya"/>
+    <contact_lede
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.lede"
+        sling:message="¿Pieza a medida, cita en el taller o prensa? Cuéntanos y el equipo responde en 1-2 días."/>
+    <contact_field_name
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.field.name"
+        sling:message="Nombre"/>
+    <contact_field_email
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.field.email"
+        sling:message="Correo"/>
+    <contact_field_phone
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.field.phone"
+        sling:message="Teléfono (opcional)"/>
+    <contact_field_topic
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.field.topic"
+        sling:message="Tema"/>
+    <contact_field_message
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.field.message"
+        sling:message="Mensaje"/>
+    <contact_topic_bespoke
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.topic.bespoke"
+        sling:message="Pieza a medida"/>
+    <contact_topic_appointment
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.topic.appointment"
+        sling:message="Cita en el taller"/>
+    <contact_topic_press
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.topic.press"
+        sling:message="Prensa"/>
+    <contact_topic_other
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.topic.other"
+        sling:message="Otro"/>
+    <contact_submit
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.submit"
+        sling:message="Enviar mensaje"/>
+    <contact_sending
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.sending"
+        sling:message="Enviando…"/>
+    <contact_ok
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.ok"
+        sling:message="¡Listo! Recibimos tu mensaje y te confirmamos por correo."/>
+    <contact_err
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.err"
+        sling:message="Algo salió mal. Revisa los campos e inténtalo de nuevo."/>
+    <contact_err_name
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.err.name"
+        sling:message="Escribe tu nombre (mín. 2 caracteres)."/>
+    <contact_err_email
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.err.email"
+        sling:message="Ingresa un correo válido."/>
+    <contact_err_message
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="contact.err.message"
+        sling:message="Cuéntanos un poco más (mín. 10 caracteres)."/>
+    <footer_tagline
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="footer.tagline"
+        sling:message="Joyería hecha a mano, pieza por pieza."/>
+    <footer_explore
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="footer.explore"
+        sling:message="Explorar"/>
+    <footer_company
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="footer.company"
+        sling:message="Casa"/>
+    <footer_rights
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="footer.rights"
+        sling:message="Todos los derechos reservados."/>
+    <spec_metal
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="spec.metal"
+        sling:message="Metal"/>
+    <spec_gemstone
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="spec.gemstone"
+        sling:message="Gema"/>
+    <spec_carat
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="spec.carat"
+        sling:message="Quilates"/>
+    <spec_ref
+        jcr:primaryType="sling:MessageEntry"
+        sling:key="spec.ref"
+        sling:message="Ref"/>
+</jcr:root>

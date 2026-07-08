@@ -1,0 +1,21 @@
+services:
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    restart: unless-stopped
+    ports:
+      - "8095:8200"     # web UI and API → http://localhost:8095
+    environment:
+      # Dev mode: Vault starts unsealed and with a fixed root token.
+      # ONLY for the lab (data lives in memory, it doesn't persist).
+      # For serious use, use server mode with storage and unseal.
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK        # Vault requires it to lock memory
+    networks:
+      - devops-net-jenkins-and-docker
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

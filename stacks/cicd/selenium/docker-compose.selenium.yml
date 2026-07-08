@@ -1,0 +1,31 @@
+services:
+  selenium-hub:
+    image: selenium/hub:latest
+    container_name: selenium-hub
+    restart: unless-stopped
+    ports:
+      - "4442:4442"     # grid internal communication (event bus)
+      - "4443:4443"     # grid internal communication (event bus)
+      - "8097:4444"     # entry point: grid console and WebDriver
+    networks:
+      - devops-net-jenkins-and-docker
+
+  chrome-node:
+    image: selenium/node-chrome:latest
+    container_name: selenium-node-chrome
+    restart: unless-stopped
+    depends_on:
+      - selenium-hub
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: 2
+    # A small /dev/shm makes Chrome crash; expand it to 2 GB.
+    shm_size: 2gb
+    networks:
+      - devops-net-jenkins-and-docker
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

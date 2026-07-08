@@ -1,0 +1,23 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    restart: unless-stopped
+    command: start-dev        # development mode (no strict HTTPS); for lab
+    ports:
+      - "8094:8080"           # host:8085 → internal 8080 · http://localhost:8094
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin        # change it after the first login
+      # Uses the data/ stack's Postgres as its store (more "enterprise" than the
+      # embedded database). Requires the data/ stack to be up.
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/aem-lab-postgress
+      KC_DB_USERNAME: arqlab
+      KC_DB_PASSWORD: arqlabx-86
+    networks:
+      - devops-net-jenkins-and-docker
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

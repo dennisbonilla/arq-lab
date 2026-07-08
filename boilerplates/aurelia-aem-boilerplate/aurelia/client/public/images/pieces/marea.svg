@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="MAREA · OCEANO">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#182226"/><stop offset="1" stop-color="#101a1d"/>
+    </linearGradient>
+    <radialGradient id="gem" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="0.35" stop-color="#7fd4d0"/>
+      <stop offset="1" stop-color="#7fd4d0" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <circle cx="400" cy="360" r="150" fill="none" stroke="#d8b877" stroke-width="6" opacity="0.85"/>
+  <polygon points="400,250 470,360 400,470 330,360" fill="url(#gem)" stroke="#d8b877" stroke-width="3"/>
+  <line x1="400" y1="250" x2="400" y2="470" stroke="#ffffff" stroke-opacity="0.4" stroke-width="1.5"/>
+  <line x1="330" y1="360" x2="470" y2="360" stroke="#ffffff" stroke-opacity="0.4" stroke-width="1.5"/>
+  <text x="60" y="720" font-family="'Jost', sans-serif" font-size="30" letter-spacing="6" fill="#f2ece4">MAREA · OCEANO</text>
+</svg>

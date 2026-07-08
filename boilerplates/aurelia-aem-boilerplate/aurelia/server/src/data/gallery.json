@@ -1,0 +1,90 @@
+{
+  "_model": "piece",
+  "_comment": "Content Fragment model 'Piece'. Cada item = 1 fragmento. El bloque i18n simula variaciones por rollout/locale (MSM). image.* apunta a la ruta DAM.",
+  "items": [
+    {
+      "id": "selene",
+      "carat": "0.90 ct",
+      "ref": "AU-SEL-01",
+      "image": {
+        "dam": "/content/dam/aurelia/pieces/selene.jpg",
+        "src": "/images/pieces/selene.svg",
+        "alt": "Anillo solitario con diamante sobre oro blanco"
+      },
+      "i18n": {
+        "es": { "name": "Solitario Selene", "collection": "Celeste", "metal": "Oro blanco 18k", "gemstone": "Diamante", "notes": "Talla brillante, montura de seis garras" },
+        "en": { "name": "Selene Solitaire", "collection": "Celeste", "metal": "18k white gold", "gemstone": "Diamond", "notes": "Brilliant cut, six-prong setting" }
+      }
+    },
+    {
+      "id": "herencia",
+      "carat": "2.40 ct",
+      "ref": "AU-HER-02",
+      "image": {
+        "dam": "/content/dam/aurelia/pieces/herencia.jpg",
+        "src": "/images/pieces/herencia.svg",
+        "alt": "Collar con esmeralda central en oro amarillo"
+      },
+      "i18n": {
+        "es": { "name": "Collar Herencia", "collection": "Raíces", "metal": "Oro amarillo 18k", "gemstone": "Esmeralda", "notes": "Esmeralda colombiana, engaste bisel" },
+        "en": { "name": "Herencia Necklace", "collection": "Roots", "metal": "18k yellow gold", "gemstone": "Emerald", "notes": "Colombian emerald, bezel setting" }
+      }
+    },
+    {
+      "id": "rocio",
+      "carat": "1.10 ct",
+      "ref": "AU-ROC-03",
+      "image": {
+        "dam": "/content/dam/aurelia/pieces/rocio.jpg",
+        "src": "/images/pieces/rocio.svg",
+        "alt": "Aretes de zafiro en oro rosa"
+      },
+      "i18n": {
+        "es": { "name": "Aretes Rocío", "collection": "Jardín", "metal": "Oro rosa 18k", "gemstone": "Zafiro", "notes": "Zafiros azules pareados, cierre de presión" },
+        "en": { "name": "Rocio Earrings", "collection": "Garden", "metal": "18k rose gold", "gemstone": "Sapphire", "notes": "Matched blue sapphires, push-back clasp" }
+      }
+    },
+    {
+      "id": "marea",
+      "carat": "3.50 ct",
+      "ref": "AU-MAR-04",
+      "image": {
+        "dam": "/content/dam/aurelia/pieces/marea.jpg",
+        "src": "/images/pieces/marea.svg",
+        "alt": "Pulsera de aguamarina en plata"
+      },
+      "i18n": {
+        "es": { "name": "Pulsera Marea", "collection": "Océano", "metal": "Plata 950", "gemstone": "Aguamarina", "notes": "Eslabones a mano, aguamarina talla cojín" },
+        "en": { "name": "Marea Bracelet", "collection": "Ocean", "metal": "950 silver", "gemstone": "Aquamarine", "notes": "Hand-forged links, cushion-cut aquamarine" }
+      }
+    },
+    {
+      "id": "brasa",
+      "carat": "1.30 ct",
+      "ref": "AU-BRA-05",
+      "image": {
+        "dam": "/content/dam/aurelia/pieces/brasa.jpg",
+        "src": "/images/pieces/brasa.svg",
+        "alt": "Anillo con rubí en oro amarillo"
+      },
+      "i18n": {
+        "es": { "name": "Anillo Brasa", "collection": "Fuego", "metal": "Oro amarillo 18k", "gemstone": "Rubí", "notes": "Rubí birmano, halo de diamantes" },
+        "en": { "name": "Brasa Ring", "collection": "Fire", "metal": "18k yellow gold", "gemstone": "Ruby", "notes": "Burmese ruby, diamond halo" }
+      }
+    },
+    {
+      "id": "aurora",
+      "carat": "2.00 ct",
+      "ref": "AU-AUR-06",
+      "image": {
+        "dam": "/content/dam/aurelia/pieces/aurora.jpg",
+        "src": "/images/pieces/aurora.svg",
+        "alt": "Dije de ópalo en oro blanco"
+      },
+      "i18n": {
+        "es": { "name": "Dije Aurora", "collection": "Celeste", "metal": "Oro blanco 18k", "gemstone": "Ópalo", "notes": "Ópalo boulder, cadena veneciana" },
+        "en": { "name": "Aurora Pendant", "collection": "Celeste", "metal": "18k white gold", "gemstone": "Opal", "notes": "Boulder opal, Venetian chain" }
+      }
+    }
+  ]
+}

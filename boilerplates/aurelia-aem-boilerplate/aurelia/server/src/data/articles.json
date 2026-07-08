@@ -1,0 +1,108 @@
+{
+  "_model": "article",
+  "_comment": "Content Fragment model 'Article' con multi-field (body en parrafos) para lucir rich-text CF. i18n por locale (rollout).",
+  "items": [
+    {
+      "slug": "las-4c-de-un-diamante",
+      "readMinutes": 6,
+      "publishedAt": "2025-11-02",
+      "hero": {
+        "dam": "/content/dam/aurelia/journal/4c.jpg",
+        "src": "/images/journal/4c.svg",
+        "alt": "Diamante bajo la lupa de un joyero"
+      },
+      "i18n": {
+        "es": {
+          "title": "Cómo leemos un diamante: las 4C",
+          "excerpt": "Corte, color, claridad y quilates, explicados sin misterio.",
+          "author": "Valentina Cortés",
+          "tag": "Guía",
+          "body": [
+            "Las 4C son el lenguaje universal para describir un diamante: corte (cut), color, claridad (clarity) y quilates (carat).",
+            "El corte es el que más manda sobre el brillo: un buen corte devuelve la luz al ojo; uno pobre la deja escapar por los lados.",
+            "El color se mide de D (incoloro) a Z, y la claridad según sus inclusiones. Los quilates son peso, no tamaño: dos piedras del mismo peso pueden verse muy distintas."
+          ]
+        },
+        "en": {
+          "title": "How we read a diamond: the 4Cs",
+          "excerpt": "Cut, color, clarity and carat, explained without mystery.",
+          "author": "Valentina Cortes",
+          "tag": "Guide",
+          "body": [
+            "The 4Cs are the universal language for describing a diamond: cut, color, clarity and carat.",
+            "Cut governs brilliance the most: a good cut returns light to the eye; a poor one lets it leak out the sides.",
+            "Color runs from D (colorless) to Z, and clarity depends on inclusions. Carat is weight, not size: two stones of equal weight can look quite different."
+          ]
+        }
+      }
+    },
+    {
+      "slug": "oro-de-origen-justo",
+      "readMinutes": 7,
+      "publishedAt": "2025-12-10",
+      "hero": {
+        "dam": "/content/dam/aurelia/journal/gold.jpg",
+        "src": "/images/journal/gold.svg",
+        "alt": "Lingotes y granalla de oro en el taller"
+      },
+      "i18n": {
+        "es": {
+          "title": "Oro de origen justo: de dónde viene nuestro metal",
+          "excerpt": "Qué significa comprar oro responsable y por qué lo trazamos.",
+          "author": "Mateo Herrera",
+          "tag": "Origen",
+          "body": [
+            "No todo el oro nace igual. El minado informal deja huella ambiental y social; por eso trabajamos con proveedores certificados.",
+            "Trazamos cada lote de metal desde su refinería hasta el banco de trabajo. La certificación no es un adorno: es una cadena de custodia.",
+            "Fundir oro reciclado de piezas antiguas es otra vía que ofrecemos: tu joya nueva puede llevar la historia de una anterior."
+          ]
+        },
+        "en": {
+          "title": "Fairly sourced gold: where our metal comes from",
+          "excerpt": "What responsible gold means and why we trace it.",
+          "author": "Mateo Herrera",
+          "tag": "Origin",
+          "body": [
+            "Not all gold is born equal. Informal mining leaves an environmental and social footprint; that is why we work with certified suppliers.",
+            "We trace every batch of metal from the refinery to the bench. Certification is not decoration: it is a chain of custody.",
+            "Melting recycled gold from older pieces is another path we offer: your new jewel can carry the story of a previous one."
+          ]
+        }
+      }
+    },
+    {
+      "slug": "el-arte-del-engaste",
+      "readMinutes": 5,
+      "publishedAt": "2026-01-15",
+      "hero": {
+        "dam": "/content/dam/aurelia/journal/setting.jpg",
+        "src": "/images/journal/setting.svg",
+        "alt": "Manos engastando una gema con buril"
+      },
+      "i18n": {
+        "es": {
+          "title": "El arte del engaste",
+          "excerpt": "Garras, bisel, pavé: cómo sostenemos una gema sin que se vea el cómo.",
+          "author": "Valentina Cortés",
+          "tag": "Taller",
+          "body": [
+            "Engastar es sujetar la gema con el metal justo para que quede firme y luzca. Cada técnica tiene su carácter.",
+            "Las garras elevan la piedra y dejan entrar luz; el bisel la abraza y protege sus bordes; el pavé cubre la superficie de destellos.",
+            "Un buen engaste es invisible: notas la piedra, no el metal que la sostiene. Ahí está el oficio."
+          ]
+        },
+        "en": {
+          "title": "The art of setting stones",
+          "excerpt": "Prongs, bezel, pavé: how we hold a gem without showing the how.",
+          "author": "Valentina Cortes",
+          "tag": "Workshop",
+          "body": [
+            "Setting means holding the gem with just enough metal so it stays firm and shines. Each technique has its own character.",
+            "Prongs lift the stone and let light in; the bezel embraces it and protects its edges; pavé blankets the surface in sparkle.",
+            "A good setting is invisible: you notice the stone, not the metal holding it. That is the craft."
+          ]
+        }
+      }
+    }
+  ]
+}

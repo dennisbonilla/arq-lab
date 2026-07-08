@@ -1,0 +1,26 @@
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: unless-stopped
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      GITEA__server__ROOT_URL: "http://localhost:8100/"
+      GITEA__server__SSH_PORT: 2222
+      # Gitea uses SQLite by default (embedded): no separate database.
+      # Enough and lightweight for a lab.
+    ports:
+      - "8100:3000"     # web UI        → http://localhost:8100
+      - "2222:22"       # Git over SSH  → git clone ssh://git@localhost:2222/...
+    volumes:
+      - gitea_data:/data
+    networks:
+      - devops-net-jenkins-and-docker
+
+volumes:
+  gitea_data:
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

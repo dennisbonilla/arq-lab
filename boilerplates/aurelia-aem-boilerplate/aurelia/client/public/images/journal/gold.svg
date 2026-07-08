@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="ORO JUSTO">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#2a2016"/><stop offset="1" stop-color="#1a1410"/></linearGradient></defs>
+  <rect width="800" height="500" fill="url(#g)"/>
+  <circle cx="640" cy="130" r="80" fill="#d8b877" opacity="0.30"/>
+  <polygon points="180,200 230,270 180,340 130,270" fill="#d8b877" opacity="0.55"/>
+  <text x="48" y="450" font-family="'Jost', sans-serif" font-size="28" letter-spacing="5" fill="#f2ece4">ORO JUSTO</text>
+</svg>

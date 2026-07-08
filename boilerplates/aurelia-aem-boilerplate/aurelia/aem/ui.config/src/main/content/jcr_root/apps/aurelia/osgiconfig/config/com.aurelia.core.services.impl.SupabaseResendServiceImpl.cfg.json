@@ -1,0 +1,7 @@
+{
+  "supabaseUrl": "$[env:AURELIA_SUPABASE_URL;default=]",
+  "supabaseServiceKey": "$[secret:AURELIA_SUPABASE_SERVICE_KEY]",
+  "resendApiKey": "$[secret:AURELIA_RESEND_API_KEY]",
+  "resendFrom": "Aurelia <hola@tudominio.com>",
+  "teamEmail": "equipo@tudominio.com"
+}

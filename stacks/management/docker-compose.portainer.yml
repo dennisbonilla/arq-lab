@@ -1,0 +1,19 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "8087:9443"     # interfaz web (HTTPS) → https://localhost:8087
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - devops-net-jenkins-and-docker
+
+volumes:
+  portainer_data:
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

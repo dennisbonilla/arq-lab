@@ -1,0 +1,21 @@
+services:
+  trivy:
+    image: aquasec/trivy:latest
+    container_name: trivy
+    restart: unless-stopped
+    # Server mode: keeps the vulnerability database cached
+    # and responds to the scans Jenkins requests (client mode).
+    command: ["server", "--listen", "0.0.0.0:4954"]
+    ports:
+      - "4954:4954"     # host:4954 → internal 4954 (Trivy server API)
+    volumes:
+      - trivy_cache:/root/.cache/
+    networks:
+      - devops-net-jenkins-and-docker
+
+volumes:
+  trivy_cache:
+
+networks:
+  devops-net-jenkins-and-docker:
+    external: true

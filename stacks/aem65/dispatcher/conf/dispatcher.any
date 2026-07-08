@@ -1,0 +1,60 @@
+# ============================================================================
+#  dispatcher.any - AEM Dispatcher configuration (fixed for 4.3.3)
+# ============================================================================
+/farms {
+  /publishfarm {
+
+    /clientheaders {
+      "*"
+    }
+
+    /virtualhosts {
+      "*"
+    }
+
+    # --- Which AEM instance to connect to ---
+    /renders {
+      /rend01 {
+        /hostname "aem65-publish"
+        /port "4503"
+        /timeout "30000"
+      }
+      # Fallback backend that always resolves, so the dispatcher
+      # starts even if AEM doesn't exist yet. 'localhost' is always there.
+      /rend02 {
+        /hostname "127.0.0.1"
+        /port "4503"
+        /timeout "5000"
+      }
+    }
+
+    # --- Security filters (whitelist) ---
+    /filter {
+      /0001 { /type "deny"  /url "*" }
+      /0002 { /type "allow" /url "* /content/*" }
+      /0003 { /type "allow" /url "* /etc/*" }
+      /0004 { /type "allow" /url "* /libs/*" }
+    }
+
+    # --- Cache ---
+    /cache {
+      /docroot "/var/www/html"
+
+      /rules {
+        /0000 { /glob "*" /type "allow" }
+      }
+
+      # Who can invalidate (clear) the cache.
+      /invalidate {
+        /0000 { /glob "*" /type "deny" }
+        /0001 { /glob "*.html" /type "allow" }
+      }
+
+      /allowedClients {
+        /0000 { /glob "*" /type "allow" }
+      }
+    }
+
+    /numberOfRetries "5"
+  }
+}
