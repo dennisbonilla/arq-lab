@@ -108,29 +108,6 @@ Some services you were asking "where are they": they're not missing, they're gro
 | AEM Publish | aem/publish       | Public site                                       |
 | Dispatcher  | aem/dispatcher    | Cache and security in front of Publish            |
 
-## Notes and things to tidy up (at your discretion)
-
-1. **`cicd/` with uppercase, mixed names** (Jenkins, SonarQube, Selenium vs
-   nexus, git). On Windows it breaks nothing, but Linux is case-sensitive. If you ever
-   take this to Linux or the pipeline, it's worth unifying to lowercase.
-
-2. **`Jenkins+SonarQube-Connected/`** looks like an experiment or backup from when
-   you integrated both. It's worth deciding whether it's the "good" version (and consolidating) or
-   a backup you can archive, so you don't have two sources of truth.
-
-3. **`dispatcher-aem65/` and `dispatcher-aemaacs/`**: you have two variants. Confirm
-   which one your `aem-dispatcher:6.5` image uses (the 6.5 one) to know which is active and
-   which is reference/future.
-
-4. **The license**: it's in `license/`, but AEM looks for it next to each jar. Make sure
-   you have a copy in `author/` and another in `publish/`, or AEM won't fully start.
-
-5. **Empty `config/`**: normal for 6.5. Leave it as a reserve or delete it; no impact.
-
-6. **Numbering folders**: you decided not to, a good choice. The logical order is already
-   given by this documentation; numbering would have broken paths in the script and in the
-   compose relative volumes without adding much.
-
 ### Start (create and boot) in the background
 docker compose -f docker-compose.jenkins.yml up -d
 
