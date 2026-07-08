@@ -27,3 +27,8 @@ replay_pid*
 *.env
 license.properties
 crx-quickstart
+*.so
+*.key
+*.pem
+*.pfx
+*.p12
