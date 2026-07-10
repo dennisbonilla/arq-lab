@@ -69,7 +69,7 @@ pipeline {
         // ── 3 · Compile ───────────────────────────────────────────────────
         stage('Build') {
             steps {
-                sh 'mvn -B -U clean compile'
+                sh 'mvn -B -U clean install'
             }
         }
 
@@ -135,13 +135,14 @@ pipeline {
         }
 
         // ── 8 · Build Docker image ────────────────────────────────────────
-        stage('Docker Build') {
-            steps {
+        // THIS STEP IS NOT REQRUIRED, THERE IS ALREADY A CONTAINER OF AEM RUNNING.
+        // stage('Docker Build') {
+            // steps {
                 // TODO: requires a Dockerfile in the repo and Jenkins being able to use
                 // Docker (mounted socket). Push to Nexus as a registry if you enable it.
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-            }
-        }
+                // sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+            // }
+        // }
 
         // ── 9 · Trivy · image scan ────────────────────────────────────────
         stage('Trivy · image') {
@@ -160,11 +161,13 @@ pipeline {
         // ── 10 · Deploy to AEM ────────────────────────────────────────────
         stage('Deploy to AEM') {
             steps {
-                // TODO: deploy the content package to the Author. Example with the
-                // content-package-maven-plugin and a dedicated profile:
-                // sh "mvn -B clean install -PautoInstallPackage \
-                //       -Daem.host=aem-author -Daem.port=4502 \
-                //       -Dvault.user=admin -Dvault.password=admin"
+                sh """
+                    mvn -B clean install -PautoInstallPackage -PautoInstallPackage \
+                    -Daem.host=aem65-author \
+                    -Daem.port=4502 \
+                    -Dvault.user=admin \
+                    -Dvault.password=admin
+                    """
                 echo "Deploy to AEM Author at ${AEM_AUTHOR}"
             }
         }
