@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/projects/aurelia/all/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/all/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/dispatcher/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/dispatcher/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/it.tests/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/it.tests/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.apps.structure/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.apps.structure/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.apps/src/main/content/jcr_root" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.apps/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.config/src/main/content/jcr_root" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.config/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.content/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.content/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.frontend/src/main/content/jcr_root" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.frontend/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.tests/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects/aurelia/ui.tests/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

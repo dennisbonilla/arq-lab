@@ -1,13 +1,18 @@
 services:
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jenkins-aem:lts-docker
     container_name: jenkins-local
     restart: unless-stopped
+    user: root                 # necesario para escribir en el socket montado
     ports:
       - "8081:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock   # permite "docker build" desde el pipeline
     networks:
       - devops-net-jenkins-and-docker
 

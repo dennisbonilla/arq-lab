@@ -1,0 +1,114 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven-3.9'
+        jdk 'JDK-11'   // AEM 6.5 corre con Java 8 u 11 segun tu Service Pack, ajusta si es necesario
+    }
+
+    options {
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+    }
+
+    // Gitea: instala el plugin "Gitea" en Jenkins y configura el webhook en el repo
+    // (Settings > Webhooks > Jenkins) apuntando a http://<jenkins-host>/gitea-webhook/post
+    // Si no tenes red entre Gitea y Jenkins, dejamos pollSCM como respaldo.
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
+    parameters {
+        string(name: 'AEM_PUBLISH_HOST', defaultValue: 'localhost', description: 'Host del publish local')
+        string(name: 'AEM_PUBLISH_PORT', defaultValue: '4503', description: 'Puerto del publish local')
+        booleanParam(name: 'USE_MAVEN_PROFILE', defaultValue: true, description: 'true = deploy via perfil Maven del archetype, false = deploy via curl/Package Manager API')
+    }
+
+    environment {
+        MAVEN_OPTS = '-Xmx1024m'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'http://gitea.local:3000/tu-org/tu-repo-aem.git',
+                        credentialsId: 'gitea-credentials'   // usuario/token de Gitea guardado en Jenkins
+                    ]]
+                ])
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn -B clean install -DskipTests'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn -B test'
+            }
+            post {
+                always {
+                    junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+                }
+            }
+        }
+
+        stage('Deploy to Publish (perfil Maven)') {
+            when {
+                expression { params.USE_MAVEN_PROFILE }
+            }
+            steps {
+                dir('all') {
+                    sh """
+                        mvn -B clean install \
+                            -PautoInstallSinglePackagePublish \
+                            -Daem.host=${params.AEM_PUBLISH_HOST} \
+                            -Daem.port=${params.AEM_PUBLISH_PORT}
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to Publish (curl / Package Manager API)') {
+            when {
+                expression { !params.USE_MAVEN_PROFILE }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'aem-publish-creds',   // NUNCA hardcodear admin/admin, aunque sea local
+                    usernameVariable: 'AEM_USER',
+                    passwordVariable: 'AEM_PASS'
+                )]) {
+                    sh """
+                        PACKAGE=\$(ls all/target/*.zip | head -n1)
+                        curl -sf -u \$AEM_USER:\$AEM_PASS \
+                            -F file=@"\$PACKAGE" \
+                            -F name=\$(basename "\$PACKAGE") \
+                            -F force=true \
+                            -F install=true \
+                            http://${params.AEM_PUBLISH_HOST}:${params.AEM_PUBLISH_PORT}/crx/packmgr/service.jsp
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deploy a publish (${params.AEM_PUBLISH_HOST}:${params.AEM_PUBLISH_PORT}) exitoso."
+        }
+        failure {
+            echo 'Build o deploy fallo, revisar la consola de Jenkins.'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

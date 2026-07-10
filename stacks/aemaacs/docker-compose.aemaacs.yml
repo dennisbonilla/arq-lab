@@ -16,7 +16,7 @@ services:
       bash -lc "
       java -Xms2048m -Xmx4096m
       -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-      -jar /opt/aem/aem-sdk-author.jar
+      -jar /opt/aem/aem-author-p14502.jar
       -nofork
       -r author,local
       "
@@ -40,7 +40,7 @@ services:
       bash -lc "
       java -Xms2048m -Xmx4096m
       -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-      -jar /opt/aem/aem-sdk-publish.jar
+      -jar /opt/aem/aem-publish-p14503.jar
       -nofork
       -r publish,local
       "

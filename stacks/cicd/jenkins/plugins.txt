@@ -1,0 +1,12 @@
+workflow-aggregator:latest
+pipeline-stage-view:latest
+docker-workflow:latest
+git:latest
+junit:latest
+sonar:latest
+credentials-binding:latest
+timestamper:latest
+ws-cleanup:latest
+config-file-provider
+credentials
+credentials-binding

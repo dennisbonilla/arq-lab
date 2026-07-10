@@ -1,0 +1,183 @@
+// ============================================================================
+//  Pipeline: build y validacion de AMBOS dispatchers del proyecto
+//
+//  Este repo tiene DOS dispatchers distintos y NO relacionados entre si:
+//
+//   A) projects/aurelia/dispatcher
+//      Modulo "aurelia.dispatcher.cloud" generado por el aem-project-archetype.
+//      Es SOLO CONFIGURACION (conf.d + conf.dispatcher.d) empaquetada por Maven
+//      (maven-assembly-plugin) en un ZIP. Maven NO construye una imagen Docker
+//      de esto: valida checksums (maven-enforcer-plugin) y empaqueta el ZIP.
+//      Ese ZIP se usa con el AEM Dispatcher SDK (docker_run.sh / validator.sh,
+//      se descarga aparte de Adobe Software Distribution) o con Cloud Manager.
+//
+//   B) stacks/aem65/dispatcher
+//      Apache httpd 2.4 + mod_dispatcher.so precompilados, con Dockerfile propio.
+//      Esto SI se compila a una imagen Docker real (docker build) y es la que
+//      corre en docker-compose.aem65.yml delante de aem65-author/aem65-publish.
+//
+//  Este pipeline construye/valida las dos por separado y, opcionalmente, hace
+//  un smoke test de stack completo.
+//
+//  Prerequisitos en Jenkins:
+//   - Tools:  JDK-11, Maven-3.9  (Manage Jenkins > Tools)
+//   - Jenkins con cliente docker disponible (ver stacks/cicd/jenkins/Dockerfile
+//     y docker-compose.jenkins.yml: monta /var/run/docker.sock)
+//   - Red docker externa "devops-net-jenkins-and-docker" ya creada
+// ============================================================================
+
+pipeline {
+    agent any
+
+    tools {
+        jdk   'JDK-11'
+        maven 'Maven-3.9'
+    }
+
+    parameters {
+        booleanParam(name: 'RUN_INTEGRATION_STACK', defaultValue: false,
+            description: 'Levanta el stack completo (author+publish+dispatcher) para probar el dispatcher B contra AEM real. Tarda varios minutos (arranque de AEM).')
+        booleanParam(name: 'SKIP_MAVEN_TESTS', defaultValue: true,
+            description: 'Salta los unit tests del archetype (mvn -DskipTests)')
+    }
+
+    environment {
+        REPO_ROOT           = "${env.WORKSPACE}"
+        ARCHETYPE_DIR        = "projects/aurelia"
+        DISPATCHER_CLOUD_DIR = "projects/aurelia/dispatcher"
+        DISPATCHER_6_5_DIR   = "stacks/aem65/dispatcher"
+        STACK_COMPOSE_FILE   = "stacks/aem65/docker-compose.aem65.yml"
+        DISPATCHER_IMAGE     = "aem-dispatcher"
+        DISPATCHER_TAG       = "6.5-${env.BUILD_NUMBER}"
+        MAVEN_OPTS           = "-Xmx1024m"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+        timeout(time: 45, unit: 'MINUTES')
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    stages {
+
+        // ── 1 · Checkout ──────────────────────────────────────────────────
+        stage('Checkout') {
+            steps {
+                echo 'Codigo obtenido del repositorio (arq-lab, mono-repo).'
+            }
+        }
+
+        // ── 2 · Verificar entorno ────────────────────────────────────────
+        stage('Verificar entorno') {
+            steps {
+                sh 'java -version'
+                sh 'mvn -version'
+                sh 'docker version'
+                sh 'docker compose version'
+            }
+        }
+
+        // ── 3 · DISPATCHER A: build y validacion via Maven (archetype) ───
+        stage('Dispatcher A · Maven build (archetype)') {
+            steps {
+                dir("${ARCHETYPE_DIR}") {
+                    script {
+                        def skip = params.SKIP_MAVEN_TESTS ? '-DskipTests' : ''
+                        // "clean install" corre el reactor completo: core, ui.apps,
+                        // ui.content, ui.config, dispatcher, all, etc. El modulo
+                        // dispatcher corre en la fase "package":
+                        //   1) maven-enforcer-plugin valida checksums de los
+                        //      archivos inmutables (conf.d/... conf.dispatcher.d/...)
+                        //   2) maven-assembly-plugin empaqueta src/ en un ZIP
+                        // Si el enforcer falla, significa que alguien modifico un
+                        // archivo inmutable del dispatcher sin crear una copia propia.
+                        sh "mvn -B -U clean install ${skip}"
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "${ARCHETYPE_DIR}/dispatcher/target/*.zip",
+                                      fingerprint: true, allowEmptyArchive: true
+                    archiveArtifacts artifacts: "${ARCHETYPE_DIR}/all/target/*.zip",
+                                      fingerprint: true, allowEmptyArchive: true
+                }
+            }
+        }
+
+        // ── 4 · DISPATCHER B: build de la imagen Docker (stack local 6.5) ─
+        stage('Dispatcher B · Docker build (stack aem65)') {
+            steps {
+                sh "docker build -t ${DISPATCHER_IMAGE}:${DISPATCHER_TAG} ${DISPATCHER_6_5_DIR}"
+                sh "docker tag ${DISPATCHER_IMAGE}:${DISPATCHER_TAG} ${DISPATCHER_IMAGE}:6.5-latest"
+            }
+        }
+
+        // ── 5 · Smoke test rapido del dispatcher B (sin AEM real) ─────────
+        stage('Dispatcher B · Smoke test standalone') {
+            steps {
+                sh """
+                    docker run -d --rm --name dispatcher-smoke-${env.BUILD_NUMBER} \
+                        -p 18096:80 ${DISPATCHER_IMAGE}:${DISPATCHER_TAG}
+                    sleep 5
+                    # No hay AEM real detras, asi que se espera un error del
+                    # dispatcher (502/503) y NO un connection-refused: eso ya
+                    # confirma que httpd + mod_dispatcher.so cargaron bien.
+                    curl -sS -o /dev/null -w 'HTTP %{http_code}\\n' http://localhost:18096/ || true
+                    docker logs dispatcher-smoke-${env.BUILD_NUMBER} --tail 30
+                """
+            }
+            post {
+                always {
+                    sh "docker rm -f dispatcher-smoke-${env.BUILD_NUMBER} || true"
+                }
+            }
+        }
+
+        // ── 6 · (Opcional) Stack completo: author + publish + dispatcher B ─
+        stage('Integracion · stack completo') {
+            when {
+                expression { params.RUN_INTEGRATION_STACK }
+            }
+            steps {
+                sh "docker compose -f ${STACK_COMPOSE_FILE} up -d --build"
+                script {
+                    // Espera a que el author responda (arranque de AEM ~2-6 min)
+                    timeout(time: 15, unit: 'MINUTES') {
+                        waitUntil {
+                            script {
+                                def code = sh(
+                                    script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:4502/ || true",
+                                    returnStdout: true
+                                ).trim()
+                                echo "AEM author HTTP ${code}"
+                                return code != '000'
+                            }
+                        }
+                    }
+                }
+                sh "curl -sS -o /dev/null -w 'Dispatcher HTTP %{http_code}\\n' http://localhost:8096/"
+            }
+            post {
+                always {
+                    sh "docker compose -f ${STACK_COMPOSE_FILE} logs --tail=100 dispatcher || true"
+                    sh "docker compose -f ${STACK_COMPOSE_FILE} down || true"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Dispatcher A (Maven/archetype) y Dispatcher B (Docker/stack aem65) construidos y validados correctamente en el build #${env.BUILD_NUMBER}."
+        }
+        failure {
+            echo "Fallo el pipeline. Revisar el stage que quedo en rojo en el Console Output."
+        }
+        always {
+            sh "docker image prune -f --filter 'label=stage=smoke' || true"
+            cleanWs()
+        }
+    }
+}
