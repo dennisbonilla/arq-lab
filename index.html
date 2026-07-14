@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture · AEM Enterprise Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0C111B; --panel:#141C2B; --panel-2:#182236; --line:#24314A;
+    --ink:#E7ECF5; --ink-dim:#93A0B8; --ink-faint:#5C6A85;
+    --signal:#7FE3C4;          /* active path / online */
+    --aem:#FA0F00;             /* AEM runtime */
+    --pipe:#5C9FD6;            /* CI/CD pipeline */
+    --plane:#8A7DF0;           /* supporting planes */
+    --edge:#2C3A56;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+
+  /* ---------------- Masthead ---------------- */
+  .masthead{padding:44px clamp(20px,4vw,56px) 26px;border-bottom:1px solid var(--line);}
+  .eyebrow{margin:0 0 8px;font-family:"JetBrains Mono",monospace;font-size:11px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);}
+  h1{margin:0;font-family:"Space Grotesk",sans-serif;font-weight:700;
+    font-size:clamp(26px,3.6vw,40px);letter-spacing:-.02em;line-height:1.05;}
+  .sub{margin:12px 0 0;max-width:60ch;color:var(--ink-dim);font-size:14.5px;line-height:1.6;}
+  .net{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:7px 12px;
+    border:1px solid var(--line);border-radius:999px;background:rgba(0,0,0,.25);
+    font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-dim);}
+  .net b{color:var(--signal);font-weight:500;}
+
+  /* ---------------- Layout ---------------- */
+  .wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;
+    padding:32px clamp(20px,4vw,56px) 56px;align-items:start;}
+  @media (max-width:1080px){ .wrap{grid-template-columns:1fr;} }
+
+  .canvas{position:relative;}
+  #edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+  @media (max-width:720px){ #edges{display:none;} }
+
+  /* ---------------- Tiers ---------------- */
+  .tier{position:relative;z-index:1;margin-bottom:26px;}
+  .tier-head{display:flex;align-items:baseline;gap:12px;margin:0 0 14px;}
+  .tier-name{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:15px;letter-spacing:-.01em;}
+  .tier-note{font-size:12.5px;color:var(--ink-faint);}
+  .tier-rule{flex:1;height:1px;background:var(--line);}
+
+  /* Six columns: the pipeline stages set the grid, everything else aligns to it. */
+  .row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:stretch;}
+  @media (max-width:1080px){ .row{grid-template-columns:repeat(4,1fr);} }
+  @media (max-width:640px){  .row{grid-template-columns:repeat(2,1fr);} }
+
+  /* ---------------- Node ---------------- */
+  .node{position:relative;
+    text-align:left;padding:13px 14px;border-radius:12px;cursor:pointer;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line);color:inherit;font:inherit;
+    transition:border-color .18s ease,transform .18s ease,opacity .18s ease;}
+  .node:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--hue) 50%,var(--line));}
+  .node:focus-visible{outline:2px solid var(--signal);outline-offset:2px;}
+  .node .seq{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--hue);
+    letter-spacing:.1em;display:block;margin-bottom:5px;}
+  .node .nm{display:block;font-family:"Space Grotesk",sans-serif;font-weight:600;
+    font-size:14.5px;letter-spacing:-.01em;line-height:1.2;}
+  .node .pt{display:block;margin-top:7px;font-family:"JetBrains Mono",monospace;
+    font-size:11px;color:var(--ink-faint);}
+  .node .bar{position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0;
+    background:var(--hue);opacity:.45;transition:opacity .18s ease;}
+  .node[aria-pressed="true"]{border-color:var(--hue);
+    box-shadow:0 0 0 1px var(--hue) inset,0 14px 34px -20px var(--hue);}
+  .node[aria-pressed="true"] .bar{opacity:1;}
+  .canvas.has-sel .node:not(.rel){opacity:.32;}
+
+  /* ---------------- Detail ---------------- */
+  .detail{position:sticky;top:24px;padding:22px;border-radius:16px;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);}
+  @media (max-width:1080px){ .detail{position:static;} }
+  .d-kicker{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--d-hue,var(--signal));margin:0 0 6px;}
+  .d-title{margin:0 0 4px;font-family:"Space Grotesk",sans-serif;font-weight:700;
+    font-size:22px;letter-spacing:-.02em;}
+  .d-role{margin:0 0 18px;color:var(--ink-dim);font-size:14px;line-height:1.55;}
+  .d-sec{margin:0 0 7px;font-family:"JetBrains Mono",monospace;font-size:10.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);}
+  .d-why{margin:0 0 18px;font-size:13.5px;line-height:1.6;color:var(--ink);}
+  .d-ports{display:grid;gap:6px;margin:0 0 18px;}
+  .d-port{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px;
+    background:rgba(0,0,0,.28);border:1px solid var(--line);
+    font-family:"JetBrains Mono",monospace;font-size:11.5px;}
+  .d-port span:first-child{color:var(--ink-faint);}
+  .d-port span:last-child{color:var(--ink);}
+  .d-links{list-style:none;margin:0;padding:0;display:grid;gap:7px;}
+  .d-links li{display:flex;gap:9px;font-size:13px;line-height:1.5;color:var(--ink-dim);}
+  .d-links .arrow{flex-shrink:0;font-family:"JetBrains Mono",monospace;color:var(--d-hue,var(--signal));}
+  .d-links b{color:var(--ink);font-weight:600;}
+  .d-empty{color:var(--ink-faint);font-size:13.5px;line-height:1.6;}
+
+  /* ---------------- Legend + footer ---------------- */
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:6px;}
+  .lg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-faint);}
+  .swatch{width:10px;height:10px;border-radius:3px;}
+
+  .rule{margin:0 clamp(20px,4vw,56px) 48px;padding:20px 22px;border-radius:14px;
+    border:1px solid var(--line);background:rgba(127,227,196,.05);}
+  .rule h2{margin:0 0 8px;font-family:"Space Grotesk",sans-serif;font-size:15px;font-weight:600;}
+  .rule p{margin:0;color:var(--ink-dim);font-size:13.5px;line-height:1.65;}
+  .rule code{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--signal);}
+
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;} }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">Local lab · Docker · AEM 6.5</p>
+  <h1>Lab architecture</h1>
+  <p class="sub">Every service here solves a specific problem in AEM development.
+     Select one to see what it does, why it earns its place, and who it talks to.</p>
+  <span class="net">Shared network <b>devops-net-jenkins-and-docker</b></span>
+  <div class="legend">
+    <span class="lg"><i class="swatch" style="background:#5C9FD6"></i>CI/CD pipeline (a sequence)</span>
+    <span class="lg"><i class="swatch" style="background:#FA0F00"></i>AEM runtime (a sequence)</span>
+    <span class="lg"><i class="swatch" style="background:#8A7DF0"></i>Supporting planes (ambient)</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="canvas" id="canvas">
+    <svg id="edges" aria-hidden="true"></svg>
+
+    <!-- The pipeline IS a sequence: code moves through these stages in order. -->
+    <section class="tier">
+      <div class="tier-head">
+        <span class="tier-name">CI/CD pipeline</span>
+        <span class="tier-note">the path code takes, in order</span>
+        <span class="tier-rule"></span>
+      </div>
+      <div class="row" id="row-pipe"></div>
+    </section>
+
+    <!-- The runtime is a sequence too: content flows Author to Publish to Dispatcher. -->
+    <section class="tier">
+      <div class="tier-head">
+        <span class="tier-name">AEM runtime</span>
+        <span class="tier-note">the path content takes, in order</span>
+        <span class="tier-rule"></span>
+      </div>
+      <div class="row" id="row-aem"></div>
+    </section>
+
+    <!-- These are NOT a sequence: they are planes cutting across everything. Unnumbered. -->
+    <section class="tier">
+      <div class="tier-head">
+        <span class="tier-name">Observability</span>
+        <span class="tier-note">watches everything, sits outside the flow</span>
+        <span class="tier-rule"></span>
+      </div>
+      <div class="row" id="row-obs"></div>
+    </section>
+
+    <section class="tier">
+      <div class="tier-head">
+        <span class="tier-name">Data and support</span>
+        <span class="tier-note">backing services, not AEM content</span>
+        <span class="tier-rule"></span>
+      </div>
+      <div class="row" id="row-data"></div>
+    </section>
+
+    <section class="tier">
+      <div class="tier-head">
+        <span class="tier-name">Access, security and operations</span>
+        <span class="tier-note">the way into the lab</span>
+        <span class="tier-rule"></span>
+      </div>
+      <div class="row" id="row-edge"></div>
+    </section>
+  </div>
+
+  <aside class="detail" id="detail" aria-live="polite"></aside>
+</div>
+
+<section class="rule">
+  <h2>The rule the whole diagram rests on</h2>
+  <p>Every arrow above exists because all containers share one network. Inside it they find each other
+     <b>by name</b>: Jenkins reaches AEM at <code>aem65-author:4502</code>, and the Dispatcher reaches Publish
+     at <code>aem65-publish:4503</code>. From the browser you come in through the host port instead:
+     <code>localhost:4502</code>. Same service, two addresses, depending on who is asking.</p>
+</section>
+
+<script>
+const HUE = { pipe:'#5C9FD6', aem:'#FA0F00', plane:'#8A7DF0' };
+
+// id, name, row, hue, sequence (only where order is real), ports, role, why, links
+const NODES = [
+  // ---- Pipeline (a real sequence) ----
+  { id:'gitea', row:'pipe', hue:'pipe', seq:'01', name:'Gitea',
+    ports:{ host:'localhost:3001', internal:'gitea:3000' },
+    role:'Self-hosted Git server. Stores and versions the AEM project.',
+    why:'Everything starts here: the AEM project (Java + Maven) lives in a repository. Without version control there is no pipeline to trigger and no way to roll a deployment back.',
+    links:[ {to:'jenkins', t:'Jenkins clones the code from here on every build'} ] },
+
+  { id:'jenkins', row:'pipe', hue:'pipe', seq:'02', name:'Jenkins',
+    ports:{ host:'localhost:8080', internal:'jenkins-local:8080' },
+    role:'The orchestrator. Builds, validates and deploys with no manual steps.',
+    why:'The heart of the lab. Every AEM change has to be compiled with Maven, packaged and deployed to the instances. Jenkins chains all of that together: it picks up the commit and carries it all the way into AEM.',
+    links:[
+      {to:'gitea', t:'Clones the AEM project'},
+      {to:'nexus', t:'Pulls dependencies and publishes the artifact'},
+      {to:'sonarqube', t:'Sends the code for analysis'},
+      {to:'trivy', t:'Asks it to scan for vulnerabilities'},
+      {to:'author', t:'Deploys the content package'},
+      {to:'dispatcher', t:'Deploys the versioned dispatcher config (docker cp)'},
+      {to:'selenium', t:'Runs the UI tests'},
+      {to:'mailhog', t:'Sends the broken-build notification'} ] },
+
+  { id:'sonarqube', row:'pipe', hue:'pipe', seq:'03', name:'SonarQube',
+    ports:{ host:'localhost:9000', internal:'sonarqube:9000' },
+    role:'Analyzes code quality and security before anything reaches AEM.',
+    why:'A badly written AEM component is expensive once it is in production. SonarQube flags bugs and bad practices, and its Quality Gate can stop the pipeline outright: bad code does not get through.',
+    links:[
+      {to:'jenkins', t:'Jenkins sends the code and waits for the verdict'},
+      {to:'postgres', t:'Stores its analysis results in the database'} ] },
+
+  { id:'trivy', row:'pipe', hue:'pipe', seq:'04', name:'Trivy',
+    ports:{ host:'—', internal:'trivy:4954' },
+    role:'Scans dependencies and images for known vulnerabilities (CVEs).',
+    why:'This is the DevSecOps piece. An AEM project drags in a long tail of Adobe and third-party dependencies; Trivy checks whether any of them carries a critical CVE and fails the build if it does.',
+    links:[ {to:'jenkins', t:'Jenkins calls it twice: once for deps, once for the image'} ] },
+
+  { id:'nexus', row:'pipe', hue:'pipe', seq:'05', name:'Nexus',
+    ports:{ host:'localhost:8084', internal:'nexus:8081' },
+    role:'Artifact repository and dependency cache.',
+    why:'Keeps every package Maven builds, versioned, and caches the Adobe dependencies, which are many and heavy. Without it, every build would re-download the world.',
+    links:[ {to:'jenkins', t:'Serves dependencies and receives the build artifacts'} ] },
+
+  { id:'selenium', row:'pipe', hue:'pipe', seq:'06', name:'Selenium Grid',
+    ports:{ host:'localhost:4444', internal:'selenium-hub:4444' },
+    role:'Drives a real browser against the deployed site.',
+    why:'It closes the loop: after the deploy, it checks that pages still render. That is the difference between "the build passed" and "the site works".',
+    links:[ {to:'jenkins', t:'Jenkins launches the tests here after each deploy'} ] },
+
+  // ---- AEM runtime (a real sequence) ----
+  { id:'author', row:'aem', hue:'aem', seq:'01', name:'AEM Author',
+    ports:{ host:'localhost:4502', internal:'aem65-author:4502' },
+    role:'Authoring instance. Where editors create the content.',
+    why:'The inward-facing half of AEM: pages get edited, assets uploaded, and the packages Jenkins deploys get installed. The public never touches it.',
+    links:[
+      {to:'jenkins', t:'Receives content packages from Jenkins'},
+      {to:'publish', t:'Replicates approved content out to Publish'} ] },
+
+  { id:'publish', row:'aem', hue:'aem', seq:'02', name:'AEM Publish',
+    ports:{ host:'localhost:4503', internal:'aem65-publish:4503' },
+    role:'Public instance. Serves the live site to visitors.',
+    why:'The outward-facing half. It only ever receives published content from Author. In production it is never exposed directly, there is always a Dispatcher in front of it.',
+    links:[
+      {to:'author', t:'Author replicates published content here'},
+      {to:'dispatcher', t:'The Dispatcher queries it and caches the responses'} ] },
+
+  { id:'dispatcher', row:'aem', hue:'aem', seq:'03', name:'Dispatcher',
+    ports:{ host:'localhost:8888', internal:'aem-dispatcher:80' },
+    role:'Cache and security filter in front of Publish. Custom-built image.',
+    why:'Apache plus Adobe\'s dispatcher module. It caches pages so Publish does not absorb the full load, and it whitelists which URLs are allowed through. I built this image myself on modern Apache 2.4, because the public ones still ship on CentOS 7, which is end-of-life.',
+    links:[
+      {to:'publish', t:'Fetches pages from Publish and caches them'},
+      {to:'jenkins', t:'Jenkins deploys its versioned config from the project'},
+      {to:'traefik', t:'Traefik can route traffic to it'} ] },
+
+  // ---- Observability (a plane, no sequence) ----
+  { id:'prometheus', row:'obs', hue:'plane', name:'Prometheus',
+    ports:{ host:'localhost:9091', internal:'prometheus:9090' },
+    role:'Scrapes metrics from the containers and the host.',
+    why:'AEM is heavy and degrades quietly. Prometheus keeps the CPU and memory history, so you can say "this got worse after yesterday\'s deploy" instead of guessing.',
+    links:[
+      {to:'cadvisor', t:'Scrapes the per-container metrics from it'},
+      {to:'grafana', t:'Grafana queries it for charts'},
+      {to:'jenkins', t:'Also scrapes Jenkins metrics'} ] },
+
+  { id:'grafana', row:'obs', hue:'plane', name:'Grafana',
+    ports:{ host:'localhost:9092', internal:'grafana:3000' },
+    role:'Turns metrics and logs into one readable panel.',
+    why:'Prometheus holds numbers, Loki holds text; Grafana makes both legible. It is where you look when something is slow and you do not yet know why.',
+    links:[
+      {to:'prometheus', t:'Metrics data source'},
+      {to:'loki', t:'Logs data source'} ] },
+
+  { id:'loki', row:'obs', hue:'plane', name:'Loki',
+    ports:{ host:'—', internal:'loki:3100' },
+    role:'Centralizes logs from every container.',
+    why:'Without it you would run docker logs container by container. Loki collects them and makes them searchable from Grafana.',
+    links:[ {to:'grafana', t:'Grafana reads its logs from here'} ] },
+
+  { id:'cadvisor', row:'obs', hue:'plane', name:'cAdvisor',
+    ports:{ host:'localhost:8083', internal:'cadvisor:8080' },
+    role:'Exposes real-time resource usage per container.',
+    why:'The sensor. It knows how much CPU and RAM each container eats, which matters a lot with AEM, where a single instance runs to several GB.',
+    links:[ {to:'prometheus', t:'Prometheus scrapes its metrics'} ] },
+
+  // ---- Data and support (a plane) ----
+  { id:'postgres', row:'data', hue:'plane', name:'PostgreSQL',
+    ports:{ host:'—', internal:'postgres:5432' },
+    role:'Database for the lab tooling.',
+    why:'Worth being precise here: AEM does NOT store its content in Postgres, it has its own JCR/Oak repository. Postgres exists for SonarQube and Keycloak, which do need a SQL database. Knowing that distinction is knowing how AEM actually works.',
+    links:[
+      {to:'sonarqube', t:'Stores its analysis results'},
+      {to:'keycloak', t:'Stores users and realms'} ] },
+
+  { id:'redis', row:'data', hue:'plane', name:'Redis',
+    ports:{ host:'—', internal:'redis:6379' },
+    role:'In-memory cache. Available, not yet heavily used.',
+    why:'Straight answer on this one: it is wired up for session or transient caching, but nothing in the stack leans on it today. Saying "available, not heavily used" is worth more than inventing a role it does not have.',
+    links:[] },
+
+  { id:'mailhog', row:'data', hue:'plane', name:'MailHog',
+    ports:{ host:'localhost:8025', internal:'mailhog:1025 (SMTP)' },
+    role:'Fake mailbox: catches system email instead of sending it.',
+    why:'Jenkins reports broken builds, AEM workflows fire notifications, Gitea sends password resets. MailHog intercepts all of it and shows it in a web inbox, so not a single real email leaves the lab.',
+    links:[ {to:'jenkins', t:'Receives the build notifications'} ] },
+
+  // ---- Access and operations (a plane) ----
+  { id:'traefik', row:'edge', hue:'plane', name:'Traefik',
+    ports:{ host:'localhost:8088 (panel)', internal:'traefik:80' },
+    role:'Reverse proxy. Routes by hostname instead of by port.',
+    why:'It replaces a list of ports with readable names. Chosen over Nginx because it discovers containers on its own by reading their labels, with no config to hand-edit. Not to be confused with the Dispatcher: that one is AEM-specific caching, this one routes the whole lab.',
+    links:[
+      {to:'dispatcher', t:'Can route traffic to the Dispatcher'},
+      {to:'dashboard', t:'And to the rest of the lab services'} ] },
+
+  { id:'cloudflared', row:'edge', hue:'plane', name:'Cloudflare Tunnel',
+    ports:{ host:'—', internal:'cloudflared'},
+    role:'Exposes the lab to the internet without opening router ports.',
+    why:'For demoing remotely. It publishes an internal service under a real domain with automatic HTTPS. It goes up for the demo and back down afterwards, with an Access policy in front so it is never left open to the world.',
+    links:[ {to:'dashboard', t:'Publishes the dashboard externally'} ] },
+
+  { id:'keycloak', row:'edge', hue:'plane', name:'Keycloak',
+    ports:{ host:'localhost:8086', internal:'keycloak:8080' },
+    role:'Identity and single sign-on across the tooling.',
+    why:'Nobody in an enterprise maintains ten separate logins. Keycloak centralizes identity; it is the piece that turns a pile of separate tools into one platform.',
+    links:[ {to:'postgres', t:'Stores users and configuration'} ] },
+
+  { id:'vault', row:'edge', hue:'plane', name:'Vault',
+    ports:{ host:'localhost:8095', internal:'vault:8200' },
+    role:'Secrets vault: passwords and tokens kept out of the code.',
+    why:'AEM and registry credentials have no business sitting in a compose file or in Git. Vault is the correct answer to "where do you keep your secrets?".',
+    links:[] },
+
+  { id:'portainer', row:'edge', hue:'plane', name:'Portainer',
+    ports:{ host:'localhost:9443', internal:'portainer:9443' },
+    role:'Visual management for Docker.',
+    why:'Inspect and operate containers, logs and volumes without memorizing commands. Most useful exactly when something breaks and you need to look fast.',
+    links:[] },
+
+  { id:'dashboard', row:'edge', hue:'plane', name:'Dashboard',
+    ports:{ host:'localhost:8090', internal:'dashboard:8090' },
+    role:'The control room. Single entry point to the whole lab.',
+    why:'A custom Node app: it TCP-checks whether each service is answering and links out to every tool. It is the first thing to show in a demo, because it sums up the entire lab in one screen.',
+    links:[
+      {to:'jenkins', t:'Health-checks it by internal name'},
+      {to:'author', t:'And the AEM instances too'},
+      {to:'cloudflared', t:'This is the service published for demos'} ] },
+];
+
+const BY_ID = Object.fromEntries(NODES.map(n => [n.id, n]));
+const canvas = document.getElementById('canvas');
+const svg    = document.getElementById('edges');
+const detail = document.getElementById('detail');
+let selected = null;
+
+/* ---------- Render nodes ---------- */
+for (const n of NODES) {
+  const row = document.getElementById('row-' + n.row);
+  const b = document.createElement('button');
+  b.className = 'node';
+  b.type = 'button';
+  b.id = 'n-' + n.id;
+  b.style.setProperty('--hue', HUE[n.hue]);
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML =
+    `<span class="bar"></span>` +
+    (n.seq ? `<span class="seq">${n.seq}</span>` : '') +
+    `<span class="nm">${n.name}</span>` +
+    `<span class="pt">${n.ports.internal}</span>`;
+  b.addEventListener('click', () => select(n.id));
+  row.appendChild(b);
+}
+
+/* ---------- Edges ---------- */
+// Unique pairs, so the same relationship is not drawn twice.
+const EDGES = [];
+const seen = new Set();
+for (const n of NODES) {
+  for (const l of n.links) {
+    const key = [n.id, l.to].sort().join('|');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    EDGES.push({ a:n.id, b:l.to });
+  }
+}
+
+function drawEdges() {
+  const box = canvas.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+  svg.innerHTML = '';
+  for (const e of EDGES) {
+    const ea = document.getElementById('n-' + e.a);
+    const eb = document.getElementById('n-' + e.b);
+    if (!ea || !eb) continue;
+    const ra = ea.getBoundingClientRect(), rb = eb.getBoundingClientRect();
+    const x1 = ra.left - box.left + ra.width/2, y1 = ra.top - box.top + ra.height/2;
+    const x2 = rb.left - box.left + rb.width/2, y2 = rb.top - box.top + rb.height/2;
+    const dy = Math.abs(y2 - y1);
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    // Soft curve: it opens vertically when nodes sit on different rows.
+    p.setAttribute('d', dy < 8
+      ? `M ${x1} ${y1} L ${x2} ${y2}`
+      : `M ${x1} ${y1} C ${x1} ${y1 + dy*0.4}, ${x2} ${y2 - dy*0.4}, ${x2} ${y2}`);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke','var(--edge)');
+    p.setAttribute('stroke-width','1.2');
+    p.dataset.a = e.a; p.dataset.b = e.b;
+    svg.appendChild(p);
+  }
+  paintEdges();
+}
+
+function paintEdges() {
+  svg.querySelectorAll('path').forEach(p => {
+    const on = selected && (p.dataset.a === selected || p.dataset.b === selected);
+    p.setAttribute('stroke', on ? HUE[BY_ID[selected].hue] : 'var(--edge)');
+    p.setAttribute('stroke-width', on ? '1.9' : '1.2');
+    p.setAttribute('opacity', selected ? (on ? '1' : '0.25') : '0.75');
+  });
+}
+
+/* ---------- Selection ---------- */
+function select(id) {
+  selected = (selected === id) ? null : id;
+  canvas.classList.toggle('has-sel', !!selected);
+
+  const rel = new Set();
+  if (selected) {
+    rel.add(selected);
+    for (const e of EDGES) {
+      if (e.a === selected) rel.add(e.b);
+      if (e.b === selected) rel.add(e.a);
+    }
+  }
+  NODES.forEach(n => {
+    const el = document.getElementById('n-' + n.id);
+    el.setAttribute('aria-pressed', String(n.id === selected));
+    el.classList.toggle('rel', rel.has(n.id));
+  });
+
+  paintEdges();
+  renderDetail();
+}
+
+function renderDetail() {
+  if (!selected) {
+    detail.style.removeProperty('--d-hue');
+    detail.innerHTML =
+      `<p class="d-kicker">Nothing selected</p>
+       <h2 class="d-title">Start with Jenkins</h2>
+       <p class="d-empty">Pick any service in the diagram. You will see what it does, why it belongs in an
+         AEM lab, and who it talks to. Related services light up; everything else dims out.</p>`;
+    return;
+  }
+  const n = BY_ID[selected];
+  detail.style.setProperty('--d-hue', HUE[n.hue]);
+  const links = n.links.length
+    ? `<p class="d-sec">Who it talks to</p>
+       <ul class="d-links">${n.links.map(l =>
+          `<li><span class="arrow">→</span><span><b>${BY_ID[l.to].name}</b> — ${l.t}</span></li>`).join('')}</ul>`
+    : `<p class="d-sec">Who it talks to</p>
+       <p class="d-empty">No active connections in the lab today.</p>`;
+
+  detail.innerHTML =
+    `<p class="d-kicker">${n.seq ? 'Stage ' + n.seq : 'Supporting plane'}</p>
+     <h2 class="d-title">${n.name}</h2>
+     <p class="d-role">${n.role}</p>
+     <p class="d-sec">Why it earns its place</p>
+     <p class="d-why">${n.why}</p>
+     <p class="d-sec">Addresses</p>
+     <div class="d-ports">
+       <div class="d-port"><span>From the browser</span><span>${n.ports.host}</span></div>
+       <div class="d-port"><span>Between containers</span><span>${n.ports.internal}</span></div>
+     </div>
+     ${links}`;
+}
+
+renderDetail();
+drawEdges();
+window.addEventListener('resize', drawEdges);
+document.fonts && document.fonts.ready.then(drawEdges);
+</script>
+</body>
+</html>
